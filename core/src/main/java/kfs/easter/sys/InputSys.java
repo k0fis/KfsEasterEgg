@@ -163,6 +163,18 @@ public class InputSys implements KfsSystem {
         }
 
         if (world.canMove(newX, newY)) {
+            // Dog or chicken at target: jump over (like fence)
+            if (world.hasDogAt(newX, newY) || world.hasChickenAt(newX, newY)) {
+                int jumpX = newX + dx;
+                int jumpY = newY + dy;
+                if (world.canMove(jumpX, jumpY) && !world.hasDogAt(jumpX, jumpY)
+                    && !world.hasTractorAt(jumpX, jumpY)) {
+                    move(e, pos, jumpX, jumpY);
+                    return;
+                }
+                // Can't jump over — don't move (would die)
+                return;
+            }
             move(e, pos, newX, newY);
         }
     }

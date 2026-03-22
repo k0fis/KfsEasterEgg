@@ -225,6 +225,30 @@ public class World extends KfsWorld {
         return t != Tile.BUSH && t != Tile.HAY_BALE && t != Tile.EXIT_CLOSED;
     }
 
+    public boolean hasDogAt(int x, int y) {
+        for (Entity e : getEntitiesWith(DogComp.class, PositionComp.class)) {
+            PositionComp p = getComponent(e, PositionComp.class);
+            if (p.x == x && p.y == y) return true;
+        }
+        return false;
+    }
+
+    public boolean hasChickenAt(int x, int y) {
+        for (Entity e : getEntitiesWith(ChickenComp.class, PositionComp.class)) {
+            PositionComp p = getComponent(e, PositionComp.class);
+            if (p.x == x && p.y == y) return true;
+        }
+        return false;
+    }
+
+    public boolean hasTractorAt(int x, int y) {
+        for (Entity e : getEntitiesWith(TractorComp.class, PositionComp.class)) {
+            PositionComp p = getComponent(e, PositionComp.class);
+            if (p.x == x && p.y == y) return true;
+        }
+        return false;
+    }
+
     public boolean canMoveNPC(int x, int y) {
         Tile t = getTile(x, y);
         return t == Tile.GRASS || t == Tile.PATH_H || t == Tile.PATH_V || t == Tile.PATH_X;

@@ -4,6 +4,7 @@ import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
@@ -26,6 +27,7 @@ public class GameScreen extends BaseScreen {
     private Label scoreLabel;
     private Label eggsLabel;
     private final String mapName;
+    private Texture bgGame;
 
     public GameScreen(KfsMain game, String mapName) {
         super(game, false);
@@ -37,6 +39,13 @@ public class GameScreen extends BaseScreen {
         viewport.apply();
 
         batch = new SpriteBatch();
+
+        try {
+            if (Gdx.files.internal("textures/bg_game.png").exists()) {
+                bgGame = new Texture(Gdx.files.internal("textures/bg_game.png"));
+            }
+        } catch (Exception ignored) {}
+
         world = new World(win -> {
             if (win) {
                 game.accumulatedScore = GameScreen.this.world.getScore();
@@ -116,6 +125,12 @@ public class GameScreen extends BaseScreen {
         ScreenUtils.clear(0.1f, 0.25f, 0.05f, 1);
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
+        // Draw background behind map
+        if (bgGame != null) {
+            float mapPxW2 = world.getMapWidth() * KfsConst.TILE_SIZE;
+            float mapPxH2 = world.getMapHeight() * KfsConst.TILE_SIZE;
+            batch.draw(bgGame, 0, 0, mapPxW2, mapPxH2);
+        }
         world.render(batch);
         batch.end();
 
@@ -145,5 +160,6 @@ public class GameScreen extends BaseScreen {
         batch.dispose();
         uiStage.dispose();
         world.dispose();
+        if (bgGame != null) bgGame.dispose();
     }
 }

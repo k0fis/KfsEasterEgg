@@ -31,12 +31,21 @@ public class BaseScreen extends ScreenAdapter {
     protected BaseScreen(KfsMain game, boolean darkBackground) {
         this.game = game;
 
-        // Create a green gradient-ish background
-        Pixmap bgPm = new Pixmap(64, 64, Pixmap.Format.RGBA8888);
-        bgPm.setColor(new Color(0.15f, 0.35f, 0.1f, 1));
-        bgPm.fill();
-        this.background = new Texture(bgPm);
-        bgPm.dispose();
+        // Load menu background image, fallback to plain green
+        Texture bgTex = null;
+        try {
+            if (Gdx.files.internal("textures/bg_menu.png").exists()) {
+                bgTex = new Texture(Gdx.files.internal("textures/bg_menu.png"));
+            }
+        } catch (Exception ignored) {}
+        if (bgTex == null) {
+            Pixmap bgPm = new Pixmap(64, 64, Pixmap.Format.RGBA8888);
+            bgPm.setColor(new Color(0.15f, 0.35f, 0.1f, 1));
+            bgPm.fill();
+            bgTex = new Texture(bgPm);
+            bgPm.dispose();
+        }
+        this.background = bgTex;
 
         this.backgroundImage = new Image(background);
         stage = new Stage(new ScreenViewport());

@@ -104,3 +104,20 @@ kfsEasterEgg/
 ## Autor
 
 Vytvořeno pro Kubu, Velikonoce 2026.
+
+## Licence a zdroje
+
+### Zvukove efekty
+Vsechny zvukove efekty (hop, egg, golden, hit, win, lose) byly **programaticky vygenerovany** skriptem `generate_sounds.py` pomoci Python modulu `wave`. Zadne externi zvuky nebyly pouzity. Bez licencnich omezeni.
+
+### Hudba
+Vsechny 3 chiptune tracky (Happy Spring Walk, Easter Bunny Bounce, Sunny Farm) byly **programaticky vygenerovany** skriptem `generate_music.py` pomoci Python modulu `wave`. Jsou to originalni kompozice vytvorene syntetizovanymi vlnovymi formami (pulse, triangle, square wave). Zadna externi hudba nebyla pouzita. Bez licencnich omezeni.
+
+### Textury
+Vsechny sprite textury a pozadi byly **programaticky vygenerovany** skriptem `generate_sprites.py` pomoci Python knihovny Pillow. Zadne externi obrazky nebyly pouzity. Bez licencnich omezeni.
+
+### Font
+**Press Start 2P** - font od Cody "CodeMan38" Boisclair, licencovany pod [SIL Open Font License 1.1](https://scripts.sil.org/OFL). Volne pouzitelny vcetne komercniho pouziti.
+
+### Framework
+**LibGDX** - Apache License 2.0. **TeaVM** - Apache License 2.0.

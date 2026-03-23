@@ -2,6 +2,7 @@ package kfs.easter.sys;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -94,6 +95,12 @@ public class InputSys implements KfsSystem {
                 touchDx = 0;
             }
         });
+
+        Color transparent = new Color(1, 1, 1, 0.25f);
+        up.setColor(transparent);
+        down.setColor(transparent);
+        left.setColor(transparent);
+        right.setColor(transparent);
 
         stage.addActor(up);
         stage.addActor(down);

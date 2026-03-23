@@ -36,8 +36,10 @@ public class GameOverScreen extends BaseScreen {
         stage.addActor(table);
 
         if (win) {
+            game.sound.play("win");
             showEnterName();
         } else {
+            game.sound.play("lose");
             showLoseScreen();
         }
     }

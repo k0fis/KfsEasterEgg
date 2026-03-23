@@ -16,6 +16,15 @@ maps/07-Double-Dog.txt
 maps/08-Fast-Tractor.txt
 maps/09-Golden-Farm.txt
 maps/10-Easter-Chaos.txt
+music/track_01.mp3
+music/track_02.mp3
+music/track_03.mp3
+sounds/egg.wav
+sounds/golden.wav
+sounds/hit.wav
+sounds/hop.wav
+sounds/lose.wav
+sounds/win.wav
 startup-logo.png
 textures/bg_game.png
 textures/bg_menu.png

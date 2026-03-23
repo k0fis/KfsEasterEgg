@@ -55,6 +55,7 @@ public class GameScreen extends BaseScreen {
                 game.setScreen(new GameOverScreen(game, GameScreen.this.world.getScore(), mapName, false));
             }
         }, game.accumulatedScore);
+        world.setSoundManager(game.sound);
 
         world.addSys(new InputSys(world));
         world.addSys(new MovingSys(world));
@@ -72,6 +73,11 @@ public class GameScreen extends BaseScreen {
         }
 
         world.loadMap(mapName);
+
+        // Start music if not already playing
+        if (!game.music.isPlaying()) {
+            game.music.play();
+        }
     }
 
     private void setupUI() {

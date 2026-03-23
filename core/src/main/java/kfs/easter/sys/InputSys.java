@@ -232,6 +232,7 @@ public class InputSys implements KfsSystem {
         if (world.getTile(newX, newY) == Tile.MUD) {
             speed *= KfsConst.MUD_SPEED_MULTIPLIER;
         }
+        world.playSound("hop");
 
         RenderComp rc = world.getComponent(e, RenderComp.class);
         if (rc != null) {
@@ -249,6 +250,7 @@ public class InputSys implements KfsSystem {
     }
 
     private void jump(Entity e, PositionComp pos, int newX, int newY) {
+        world.playSound("hop");
         RenderComp rc = world.getComponent(e, RenderComp.class);
         if (rc != null) {
             int dx = newX - pos.x;

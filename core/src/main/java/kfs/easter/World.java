@@ -27,6 +27,7 @@ public class World extends KfsWorld {
     private final Map<Tile, Texture> textures;
     private final Map<String, Texture> spriteTextures;
     private int accumulatedScore;
+    private SoundManager soundManager;
 
     public World(Consumer<Boolean> gameOverCallback, int accumulatedScore) {
         this.gameOverCallback = gameOverCallback;
@@ -273,6 +274,9 @@ public class World extends KfsWorld {
             }
         }
     }
+
+    public void setSoundManager(SoundManager sm) { this.soundManager = sm; }
+    public void playSound(String name) { if (soundManager != null) soundManager.play(name); }
 
     public boolean isGameOver() { return gameOver; }
     public boolean isLevelComplete() { return levelComplete; }

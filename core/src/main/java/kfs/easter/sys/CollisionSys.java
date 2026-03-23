@@ -38,14 +38,17 @@ public class CollisionSys implements KfsSystem {
                     switch (egg.type) {
                         case NORMAL:
                             player.score += KfsConst.SCORE_EGG_NORMAL;
+                            world.playSound("egg");
                             break;
                         case GOLDEN:
                             player.score += KfsConst.SCORE_EGG_GOLDEN;
+                            world.playSound("golden");
                             break;
                         case SPECIAL:
                             player.score += KfsConst.SCORE_EGG_SPECIAL;
                             player.activePower = PlayerComp.PowerUp.SPEED;
                             player.powerTimer = 5f;
+                            world.playSound("golden");
                             break;
                     }
                     player.eggsCollected++;
@@ -59,6 +62,7 @@ public class CollisionSys implements KfsSystem {
                 for (Entity de : world.getEntitiesWith(DogComp.class, PositionComp.class)) {
                     PositionComp dogPos = world.getComponent(de, PositionComp.class);
                     if (dogPos.x == playerPos.x && dogPos.y == playerPos.y) {
+                        world.playSound("hit");
                         world.gameOver(false);
                         return;
                     }
@@ -69,6 +73,7 @@ public class CollisionSys implements KfsSystem {
             for (Entity te : world.getEntitiesWith(TractorComp.class, PositionComp.class)) {
                 PositionComp tractorPos = world.getComponent(te, PositionComp.class);
                 if (tractorPos.x == playerPos.x && tractorPos.y == playerPos.y) {
+                    world.playSound("hit");
                     world.gameOver(false);
                     return;
                 }

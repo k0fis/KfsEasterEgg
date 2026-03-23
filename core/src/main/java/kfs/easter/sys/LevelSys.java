@@ -31,6 +31,7 @@ public class LevelSys implements KfsSystem {
             if (world.isExitOpen()) {
                 Tile t = world.getTile(pos.x, pos.y);
                 if (t == Tile.EXIT_OPEN) {
+                    world.playSound("win");
                     world.gameOver(true);
                 }
             }

@@ -10,6 +10,7 @@ public class PlayerComp implements KfsComp {
     public float powerTimer;
     public int startX;
     public int startY;
+    public float jumpCooldown;
 
     public enum PowerUp {
         NONE, SPEED, INVISIBLE

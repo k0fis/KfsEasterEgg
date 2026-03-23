@@ -13,6 +13,9 @@ public class KfsConst {
     public static final float CHICKEN_MOVE_INTERVAL = 1.2f;
     public static final float MUD_SPEED_MULTIPLIER = 0.4f;
     public static final float CAMERA_SMOOTH = 0.12f;
+    public static final float JUMP_COOLDOWN = 2.0f;
+    public static final int JUMP_MAX_DISTANCE = 3;
+    public static final float JUMP_SPEED_MULTIPLIER = 1.5f;
 
     public static final float BUTTON_TRANSPARENCY = 0.75f;
 

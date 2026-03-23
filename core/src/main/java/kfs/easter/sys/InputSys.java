@@ -19,6 +19,8 @@ public class InputSys implements KfsSystem {
     private final World world;
     private int touchDx, touchDy;
     private int swipeDx, swipeDy;
+    private boolean jumpRequested;
+    private boolean touchJumpRequested;
 
     public InputSys(World world) {
         this.world = world;
@@ -96,16 +98,28 @@ public class InputSys implements KfsSystem {
             }
         });
 
+        // Jump button - right side of screen
+        TextButton jump = new TextButton("J", skin);
+        int jumpX = (int) stage.getWidth() - padding - size;
+        jump.setBounds(jumpX, baseY + size, size, size);
+        jump.addListener(new ClickListener() {
+            @Override public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                touchJumpRequested = true; return true;
+            }
+        });
+
         Color transparent = new Color(1, 1, 1, 0.25f);
         up.setColor(transparent);
         down.setColor(transparent);
         left.setColor(transparent);
         right.setColor(transparent);
+        jump.setColor(transparent);
 
         stage.addActor(up);
         stage.addActor(down);
         stage.addActor(left);
         stage.addActor(right);
+        stage.addActor(jump);
     }
 
     @Override
@@ -114,6 +128,9 @@ public class InputSys implements KfsSystem {
 
         for (Entity e : world.getEntitiesWith(PlayerComp.class, PositionComp.class)) {
             if (world.getComponent(e, MovingComp.class) != null) continue;
+
+            PlayerComp pc = world.getComponent(e, PlayerComp.class);
+            pc.jumpCooldown = Math.max(0, pc.jumpCooldown - delta);
 
             PositionComp pos = world.getComponent(e, PositionComp.class);
             int dx = 0, dy = 0;
@@ -130,10 +147,46 @@ public class InputSys implements KfsSystem {
             swipeDx = 0;
             swipeDy = 0;
 
+            // Jump: Space or touch J button
+            boolean wantJump = Gdx.input.isKeyJustPressed(Input.Keys.SPACE) || touchJumpRequested;
+            touchJumpRequested = false;
+
+            if (wantJump && pc.jumpCooldown <= 0) {
+                RenderComp rc = world.getComponent(e, RenderComp.class);
+                int jdx = rc != null ? rc.facingX : 0;
+                int jdy = rc != null ? rc.facingY : -1;
+                if (handleJump(e, pos, pc, jdx, jdy)) {
+                    continue;
+                }
+            }
+
             if (dx != 0 || dy != 0) {
                 handleMovement(e, pos, dx, dy);
             }
         }
+    }
+
+    private boolean handleJump(Entity e, PositionComp pos, PlayerComp pc, int dx, int dy) {
+        // Try +3, then +2, then +1
+        for (int dist = KfsConst.JUMP_MAX_DISTANCE; dist >= 1; dist--) {
+            int targetX = pos.x + dx * dist;
+            int targetY = pos.y + dy * dist;
+            if (canJumpTo(targetX, targetY)) {
+                pc.jumpCooldown = KfsConst.JUMP_COOLDOWN;
+                jump(e, pos, targetX, targetY);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean canJumpTo(int x, int y) {
+        Tile tile = world.getTile(x, y);
+        if (tile == null) return false;
+        if (tile == Tile.BUSH || tile == Tile.HAY_BALE || tile == Tile.FENCE) return false;
+        if (tile == Tile.EXIT_CLOSED) return false;
+        if (world.hasDogAt(x, y) || world.hasTractorAt(x, y)) return false;
+        return true;
     }
 
     private void handleMovement(Entity e, PositionComp pos, int dx, int dy) {
@@ -170,37 +223,22 @@ public class InputSys implements KfsSystem {
         }
 
         if (world.canMove(newX, newY)) {
-            // Dog or chicken at target: jump over (like fence)
-            if (world.hasDogAt(newX, newY) || world.hasChickenAt(newX, newY)) {
-                int jumpX = newX + dx;
-                int jumpY = newY + dy;
-                if (world.canMove(jumpX, jumpY) && !world.hasDogAt(jumpX, jumpY)
-                    && !world.hasTractorAt(jumpX, jumpY)) {
-                    move(e, pos, jumpX, jumpY);
-                    return;
-                }
-                // Can't jump over — don't move (would die)
-                return;
-            }
             move(e, pos, newX, newY);
         }
     }
 
     private void move(Entity e, PositionComp pos, int newX, int newY) {
-        PlayerComp pc = world.getComponent(e, PlayerComp.class);
         float speed = KfsConst.PLAYER_MOVE_SPEED;
-        // Mud slows down
         if (world.getTile(newX, newY) == Tile.MUD) {
             speed *= KfsConst.MUD_SPEED_MULTIPLIER;
         }
 
-        // Update facing direction
         RenderComp rc = world.getComponent(e, RenderComp.class);
         if (rc != null) {
             int dx = newX - pos.x;
             int dy = newY - pos.y;
-            if (dx != 0) { rc.facingX = dx; rc.facingY = 0; }
-            else if (dy != 0) { rc.facingY = dy; rc.facingX = 0; }
+            if (dx != 0) { rc.facingX = dx > 0 ? 1 : -1; rc.facingY = 0; }
+            else if (dy != 0) { rc.facingY = dy > 0 ? 1 : -1; rc.facingX = 0; }
         }
 
         world.addComponent(e, new MovingComp(
@@ -208,9 +246,22 @@ public class InputSys implements KfsSystem {
             newX * KfsConst.TILE_SIZE, newY * KfsConst.TILE_SIZE, speed));
         pos.x = newX;
         pos.y = newY;
+    }
 
-        if (world.getComponent(e, RenderComp.class) != null) {
-            // Update facing direction for rendering
+    private void jump(Entity e, PositionComp pos, int newX, int newY) {
+        RenderComp rc = world.getComponent(e, RenderComp.class);
+        if (rc != null) {
+            int dx = newX - pos.x;
+            int dy = newY - pos.y;
+            if (dx != 0) { rc.facingX = dx > 0 ? 1 : -1; rc.facingY = 0; }
+            else if (dy != 0) { rc.facingY = dy > 0 ? 1 : -1; rc.facingX = 0; }
         }
+
+        float speed = KfsConst.PLAYER_MOVE_SPEED * KfsConst.JUMP_SPEED_MULTIPLIER;
+        world.addComponent(e, new MovingComp(
+            pos.x * KfsConst.TILE_SIZE, pos.y * KfsConst.TILE_SIZE,
+            newX * KfsConst.TILE_SIZE, newY * KfsConst.TILE_SIZE, speed));
+        pos.x = newX;
+        pos.y = newY;
     }
 }

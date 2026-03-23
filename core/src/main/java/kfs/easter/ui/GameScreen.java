@@ -26,6 +26,7 @@ public class GameScreen extends BaseScreen {
     private Stage uiStage;
     private Label scoreLabel;
     private Label eggsLabel;
+    private Label jumpLabel;
     private final String mapName;
     private Texture bgGame;
 
@@ -90,6 +91,10 @@ public class GameScreen extends BaseScreen {
         eggsLabel = new Label("Eggs: 0/0", eggsStyle);
         table.add(eggsLabel).expandX().center();
 
+        Label.LabelStyle jumpStyle = new Label.LabelStyle(fontSmall, Color.GREEN);
+        jumpLabel = new Label("JUMP", jumpStyle);
+        table.add(jumpLabel).expandX().center();
+
         TextButton.TextButtonStyle buttonStyle = getTextButtonStyle(fontSmall, Color.WHITE);
         TextButton exitButton = new TextButton("Menu", buttonStyle);
         exitButton.addListener(e -> {
@@ -141,6 +146,13 @@ public class GameScreen extends BaseScreen {
             eggsLabel.setText("Eggs: " + pc.eggsCollected + "/" + pc.totalEggs);
             if (world.isExitOpen()) {
                 eggsLabel.setColor(Color.GREEN);
+            }
+            if (pc.jumpCooldown <= 0) {
+                jumpLabel.setText("JUMP [SPACE]");
+                jumpLabel.setColor(Color.GREEN);
+            } else {
+                jumpLabel.setText("JUMP " + String.format("%.1f", pc.jumpCooldown));
+                jumpLabel.setColor(Color.GRAY);
             }
         }
 

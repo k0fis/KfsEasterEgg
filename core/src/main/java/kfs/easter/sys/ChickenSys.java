@@ -35,6 +35,11 @@ public class ChickenSys implements KfsSystem {
             int newY = pos.y + dir[1];
 
             if (world.canMoveNPC(newX, newY)) {
+                RenderComp rc = world.getComponent(e, RenderComp.class);
+                if (rc != null) {
+                    if (dir[0] != 0) { rc.facingX = dir[0]; rc.facingY = 0; }
+                    else if (dir[1] != 0) { rc.facingY = dir[1]; rc.facingX = 0; }
+                }
                 world.addComponent(e, new MovingComp(
                     pos.x * KfsConst.TILE_SIZE, pos.y * KfsConst.TILE_SIZE,
                     newX * KfsConst.TILE_SIZE, newY * KfsConst.TILE_SIZE,

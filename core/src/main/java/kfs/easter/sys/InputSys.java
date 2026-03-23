@@ -187,6 +187,15 @@ public class InputSys implements KfsSystem {
             speed *= KfsConst.MUD_SPEED_MULTIPLIER;
         }
 
+        // Update facing direction
+        RenderComp rc = world.getComponent(e, RenderComp.class);
+        if (rc != null) {
+            int dx = newX - pos.x;
+            int dy = newY - pos.y;
+            if (dx != 0) { rc.facingX = dx; rc.facingY = 0; }
+            else if (dy != 0) { rc.facingY = dy; rc.facingX = 0; }
+        }
+
         world.addComponent(e, new MovingComp(
             pos.x * KfsConst.TILE_SIZE, pos.y * KfsConst.TILE_SIZE,
             newX * KfsConst.TILE_SIZE, newY * KfsConst.TILE_SIZE, speed));

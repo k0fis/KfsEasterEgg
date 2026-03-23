@@ -42,6 +42,14 @@ public class TractorSys implements KfsSystem {
             PositionComp pos = world.getComponent(e, PositionComp.class);
             int[] target = tc.path.get(tc.pathIndex);
 
+            RenderComp rc = world.getComponent(e, RenderComp.class);
+            if (rc != null) {
+                int dx = target[0] - pos.x;
+                int dy = target[1] - pos.y;
+                if (dx != 0) { rc.facingX = dx; rc.facingY = 0; }
+                else if (dy != 0) { rc.facingY = dy; rc.facingX = 0; }
+            }
+
             world.addComponent(e, new MovingComp(
                 pos.x * KfsConst.TILE_SIZE, pos.y * KfsConst.TILE_SIZE,
                 target[0] * KfsConst.TILE_SIZE, target[1] * KfsConst.TILE_SIZE,

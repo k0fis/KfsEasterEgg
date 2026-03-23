@@ -25,12 +25,14 @@ public class World extends KfsWorld {
     private boolean levelComplete;
     private boolean exitOpen;
     private final Map<Tile, Texture> textures;
+    private final Map<String, Texture> spriteTextures;
     private int accumulatedScore;
 
     public World(Consumer<Boolean> gameOverCallback, int accumulatedScore) {
         this.gameOverCallback = gameOverCallback;
         this.accumulatedScore = accumulatedScore;
-        this.textures = createPlaceholderTextures();
+        this.textures = loadTileTextures();
+        this.spriteTextures = loadSpriteTextures();
     }
 
     public void loadMap(String file) {
@@ -200,11 +202,6 @@ public class World extends KfsWorld {
         super.render(batch);
     }
 
-    public void dispose() {
-        textures.values().forEach(Texture::dispose);
-        runSystems(KfsSystem::done);
-    }
-
     public Tile[][] getTiles() { return tiles; }
     public int getMapWidth() { return mapWidth; }
     public int getMapHeight() { return mapHeight; }
@@ -296,44 +293,77 @@ public class World extends KfsWorld {
         return textures.get(tile);
     }
 
-    private Map<Tile, Texture> createPlaceholderTextures() {
-        Map<Tile, Texture> map = new HashMap<>();
-        for (Tile t : Tile.values()) {
-            Pixmap pm = new Pixmap(KfsConst.TILE_SIZE, KfsConst.TILE_SIZE, Pixmap.Format.RGBA8888);
-            pm.setColor(t.color);
-            pm.fill();
-            // Add a 1px border for visibility
-            pm.setColor(new Color(t.color.r * 0.7f, t.color.g * 0.7f, t.color.b * 0.7f, 1));
-            pm.drawRectangle(0, 0, KfsConst.TILE_SIZE, KfsConst.TILE_SIZE);
+    /** Get directional sprite for an entity (e.g. "rabbit_front", "dog_left"). */
+    public Texture getSprite(String key) {
+        return spriteTextures.getOrDefault(key, null);
+    }
 
-            // Special markers for some tiles
-            if (t == Tile.RABBIT) {
-                pm.setColor(Color.PINK);
-                pm.fillCircle(KfsConst.TILE_SIZE / 2, KfsConst.TILE_SIZE / 2, KfsConst.TILE_SIZE / 3);
-            } else if (t == Tile.DOG) {
-                pm.setColor(Color.BROWN);
-                pm.fillCircle(KfsConst.TILE_SIZE / 2, KfsConst.TILE_SIZE / 2, KfsConst.TILE_SIZE / 3);
-            } else if (t == Tile.EGG || t == Tile.GOLDEN_EGG || t == Tile.SPECIAL_EGG) {
-                pm.setColor(Color.WHITE);
-                pm.fillCircle(KfsConst.TILE_SIZE / 2, KfsConst.TILE_SIZE / 2, KfsConst.TILE_SIZE / 4);
-                pm.setColor(t.color);
-                pm.fillCircle(KfsConst.TILE_SIZE / 2, KfsConst.TILE_SIZE / 2, KfsConst.TILE_SIZE / 6);
-            } else if (t == Tile.TRACTOR) {
-                pm.setColor(Color.RED);
-                pm.fillRectangle(8, 8, KfsConst.TILE_SIZE - 16, KfsConst.TILE_SIZE - 16);
-            } else if (t == Tile.EXIT_CLOSED) {
-                pm.setColor(Color.DARK_GRAY);
-                pm.fillRectangle(4, 4, KfsConst.TILE_SIZE - 8, KfsConst.TILE_SIZE - 8);
-            } else if (t == Tile.EXIT_OPEN) {
-                pm.setColor(Color.GREEN);
-                pm.fillRectangle(4, 4, KfsConst.TILE_SIZE - 8, KfsConst.TILE_SIZE - 8);
-            } else if (t == Tile.CHICKEN) {
-                pm.setColor(Color.ORANGE);
-                pm.fillCircle(KfsConst.TILE_SIZE / 2, KfsConst.TILE_SIZE / 2, KfsConst.TILE_SIZE / 4);
+    public void dispose() {
+        textures.values().forEach(Texture::dispose);
+        spriteTextures.values().forEach(Texture::dispose);
+        runSystems(KfsSystem::done);
+    }
+
+    private Texture loadTexture(String path) {
+        try {
+            if (Gdx.files.internal(path).exists()) {
+                return new Texture(Gdx.files.internal(path));
             }
+        } catch (Exception e) {
+            // fall through to placeholder
+        }
+        return null;
+    }
 
-            map.put(t, new Texture(pm));
-            pm.dispose();
+    private Texture makePlaceholder(Color color) {
+        Pixmap pm = new Pixmap(KfsConst.TILE_SIZE, KfsConst.TILE_SIZE, Pixmap.Format.RGBA8888);
+        pm.setColor(color);
+        pm.fill();
+        pm.setColor(new Color(color.r * 0.7f, color.g * 0.7f, color.b * 0.7f, 1));
+        pm.drawRectangle(0, 0, KfsConst.TILE_SIZE, KfsConst.TILE_SIZE);
+        Texture t = new Texture(pm);
+        pm.dispose();
+        return t;
+    }
+
+    private Map<Tile, Texture> loadTileTextures() {
+        Map<Tile, Texture> map = new HashMap<>();
+        // Mapping: tile enum -> texture file
+        Map<Tile, String> fileMap = new HashMap<>();
+        fileMap.put(Tile.GRASS, "textures/tile_grass.png");
+        fileMap.put(Tile.BUSH, "textures/tile_bush.png");
+        fileMap.put(Tile.HAY_BALE, "textures/tile_hay.png");
+        fileMap.put(Tile.FENCE, "textures/tile_fence.png");
+        fileMap.put(Tile.MUD, "textures/tile_mud.png");
+        fileMap.put(Tile.HOLE, "textures/tile_hole.png");
+        fileMap.put(Tile.PATH_H, "textures/tile_path.png");
+        fileMap.put(Tile.PATH_V, "textures/tile_path.png");
+        fileMap.put(Tile.PATH_X, "textures/tile_path.png");
+        fileMap.put(Tile.EXIT_CLOSED, "textures/tile_exit_closed.png");
+        fileMap.put(Tile.EXIT_OPEN, "textures/tile_exit_open.png");
+
+        for (Tile t : Tile.values()) {
+            String file = fileMap.get(t);
+            Texture tex = (file != null) ? loadTexture(file) : null;
+            map.put(t, tex != null ? tex : makePlaceholder(t.color));
+        }
+        return map;
+    }
+
+    private Map<String, Texture> loadSpriteTextures() {
+        Map<String, Texture> map = new HashMap<>();
+        String[] sprites = {
+            "rabbit_front", "rabbit_back", "rabbit_left", "rabbit_right",
+            "dog_front", "dog_back", "dog_left", "dog_right",
+            "tractor_right", "tractor_left", "tractor_front",
+            "chicken",
+            "egg_normal", "egg_golden", "egg_special"
+        };
+        for (String name : sprites) {
+            Texture tex = loadTexture("textures/" + name + ".png");
+            if (tex != null) {
+                map.put(name, tex);
+            }
         }
         return map;
     }

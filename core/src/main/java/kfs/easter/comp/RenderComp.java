@@ -5,10 +5,12 @@ import kfs.easter.ecs.KfsComp;
 
 public class RenderComp implements KfsComp {
     public Tile tile;
-    public int dx;
+    public int facingX;  // -1=left, 0=neutral, 1=right
+    public int facingY;  // -1=down, 0=neutral, 1=up
 
     public RenderComp(Tile tile) {
         this.tile = tile;
-        this.dx = 0;
+        this.facingX = 0;
+        this.facingY = -1; // default facing down/front
     }
 }

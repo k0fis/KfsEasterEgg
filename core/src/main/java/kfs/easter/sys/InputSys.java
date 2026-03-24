@@ -126,6 +126,14 @@ public class InputSys implements KfsSystem {
     public void update(float delta) {
         if (world.isGameOver()) return;
 
+        // Accumulate jump request before entity loop — isKeyJustPressed is true
+        // for only one frame, but the player may be mid-move animation (MovingComp)
+        // on that frame, so we buffer it until the player can actually act.
+        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE) || touchJumpRequested) {
+            jumpRequested = true;
+        }
+        touchJumpRequested = false;
+
         for (Entity e : world.getEntitiesWith(PlayerComp.class, PositionComp.class)) {
             if (world.getComponent(e, MovingComp.class) != null) continue;
 
@@ -147,16 +155,15 @@ public class InputSys implements KfsSystem {
             swipeDx = 0;
             swipeDy = 0;
 
-            // Jump: Space or touch J button
-            boolean wantJump = Gdx.input.isKeyJustPressed(Input.Keys.SPACE) || touchJumpRequested;
-            touchJumpRequested = false;
-
-            if (wantJump && pc.jumpCooldown <= 0) {
-                RenderComp rc = world.getComponent(e, RenderComp.class);
-                int jdx = rc != null ? rc.facingX : 0;
-                int jdy = rc != null ? rc.facingY : -1;
-                if (handleJump(e, pos, pc, jdx, jdy)) {
-                    continue;
+            if (jumpRequested) {
+                jumpRequested = false;
+                if (pc.jumpCooldown <= 0) {
+                    RenderComp rc = world.getComponent(e, RenderComp.class);
+                    int jdx = rc != null ? rc.facingX : 0;
+                    int jdy = rc != null ? rc.facingY : -1;
+                    if (handleJump(e, pos, pc, jdx, jdy)) {
+                        continue;
+                    }
                 }
             }
 

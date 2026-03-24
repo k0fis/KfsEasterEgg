@@ -16,7 +16,7 @@ public class TractorSys implements KfsSystem {
 
     @Override
     public void update(float delta) {
-        if (world.isGameOver()) return;
+        if (world.isGameOver() || world.isDying()) return;
 
         for (Entity e : world.getEntitiesWith(TractorComp.class, PositionComp.class)) {
             if (world.getComponent(e, MovingComp.class) != null) continue;

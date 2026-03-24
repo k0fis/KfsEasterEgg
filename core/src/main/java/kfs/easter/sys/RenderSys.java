@@ -12,6 +12,7 @@ import kfs.easter.ecs.KfsSystem;
 public class RenderSys implements KfsSystem {
 
     private final World world;
+    private float deathBlinkTimer;
 
     public RenderSys(World world) {
         this.world = world;
@@ -19,10 +20,20 @@ public class RenderSys implements KfsSystem {
 
     @Override
     public void render(SpriteBatch batch) {
+        if (world.isDying()) {
+            deathBlinkTimer += 0.05f; // ~3 blinks/sec at 60fps
+        }
+
         for (Entity e : world.getEntitiesWith(RenderComp.class, PositionComp.class)) {
             RenderComp rc = world.getComponent(e, RenderComp.class);
             PositionComp pos = world.getComponent(e, PositionComp.class);
             MovingComp mc = world.getComponent(e, MovingComp.class);
+
+            // During death: blink the player sprite
+            boolean isPlayer = rc.tile == Tile.RABBIT;
+            if (world.isDying() && isPlayer && ((int)(deathBlinkTimer * 8) % 2 == 0)) {
+                continue; // skip drawing = blink off
+            }
 
             float drawX, drawY;
             if (mc != null) {
@@ -37,7 +48,15 @@ public class RenderSys implements KfsSystem {
             if (tex == null) {
                 tex = world.getTexture(rc.tile);
             }
+
+            // During death: tint player red on visible frames
+            if (world.isDying() && isPlayer) {
+                batch.setColor(1f, 0.3f, 0.3f, 1f);
+            }
             batch.draw(tex, drawX, drawY, KfsConst.TILE_SIZE, KfsConst.TILE_SIZE);
+            if (world.isDying() && isPlayer) {
+                batch.setColor(1f, 1f, 1f, 1f);
+            }
         }
     }
 

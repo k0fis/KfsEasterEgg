@@ -23,4 +23,6 @@ public class KfsConst {
     public static final int SCORE_EGG_GOLDEN = 50;
     public static final int SCORE_EGG_SPECIAL = 25;
     public static final int SCORE_LEVEL_COMPLETE = 100;
+
+    public static final float DEATH_DELAY = 1.5f;
 }

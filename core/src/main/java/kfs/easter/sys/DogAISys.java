@@ -18,20 +18,20 @@ public class DogAISys implements KfsSystem {
 
     @Override
     public void update(float delta) {
-        if (world.isGameOver()) return;
+        if (world.isGameOver() || world.isDying()) return;
 
-        // Find player position
-        int playerX = -1, playerY = -1;
-        for (Entity pe : world.getEntitiesWith(PlayerComp.class, PositionComp.class)) {
-            PositionComp pp = world.getComponent(pe, PositionComp.class);
-            playerX = pp.x;
-            playerY = pp.y;
+        // Use pre-frame player position so the dog targets where the player
+        // WAS at the start of this frame, not where InputSys moved them.
+        // This prevents diagonal "instant catch" when both move in the same frame.
+        int playerX = world.getPreFramePlayerX();
+        int playerY = world.getPreFramePlayerY();
 
-            // Check if player is invisible (power-up)
+        // Check if player is invisible (power-up)
+        for (Entity pe : world.getEntitiesWith(PlayerComp.class)) {
             PlayerComp pc = world.getComponent(pe, PlayerComp.class);
             if (pc.activePower == PlayerComp.PowerUp.INVISIBLE) return;
         }
-        if (playerX < 0) return;
+        if (playerX <= 0 && playerY <= 0) return;
 
         for (Entity e : world.getEntitiesWith(DogComp.class, PositionComp.class)) {
             if (world.getComponent(e, MovingComp.class) != null) continue;

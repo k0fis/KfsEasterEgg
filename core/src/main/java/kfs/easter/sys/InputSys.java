@@ -124,7 +124,7 @@ public class InputSys implements KfsSystem {
 
     @Override
     public void update(float delta) {
-        if (world.isGameOver()) return;
+        if (world.isGameOver() || world.isDying()) return;
 
         // Accumulate jump request before entity loop — isKeyJustPressed is true
         // for only one frame, but the player may be mid-move animation (MovingComp)

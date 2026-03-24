@@ -16,7 +16,7 @@ public class CollisionSys implements KfsSystem {
 
     @Override
     public void update(float delta) {
-        if (world.isGameOver()) return;
+        if (world.isGameOver() || world.isDying()) return;
 
         for (Entity pe : world.getEntitiesWith(PlayerComp.class, PositionComp.class)) {
             PlayerComp player = world.getComponent(pe, PlayerComp.class);
@@ -62,8 +62,7 @@ public class CollisionSys implements KfsSystem {
                 for (Entity de : world.getEntitiesWith(DogComp.class, PositionComp.class)) {
                     PositionComp dogPos = world.getComponent(de, PositionComp.class);
                     if (dogPos.x == playerPos.x && dogPos.y == playerPos.y) {
-                        world.playSound("hit");
-                        world.gameOver(false);
+                        world.startDying();
                         return;
                     }
                 }
@@ -73,8 +72,7 @@ public class CollisionSys implements KfsSystem {
             for (Entity te : world.getEntitiesWith(TractorComp.class, PositionComp.class)) {
                 PositionComp tractorPos = world.getComponent(te, PositionComp.class);
                 if (tractorPos.x == playerPos.x && tractorPos.y == playerPos.y) {
-                    world.playSound("hit");
-                    world.gameOver(false);
+                    world.startDying();
                     return;
                 }
             }

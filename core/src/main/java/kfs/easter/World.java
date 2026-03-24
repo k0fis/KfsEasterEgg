@@ -23,11 +23,14 @@ public class World extends KfsWorld {
     private int mapHeight;
     private boolean gameOver;
     private boolean levelComplete;
+    private boolean dying;
+    private float deathTimer;
     private boolean exitOpen;
     private final Map<Tile, Texture> textures;
     private final Map<String, Texture> spriteTextures;
     private int accumulatedScore;
     private SoundManager soundManager;
+    private int preFramePlayerX, preFramePlayerY;
 
     public World(Consumer<Boolean> gameOverCallback, int accumulatedScore) {
         this.gameOverCallback = gameOverCallback;
@@ -252,6 +255,31 @@ public class World extends KfsWorld {
         return t == Tile.GRASS || t == Tile.PATH_H || t == Tile.PATH_V || t == Tile.PATH_X;
     }
 
+    @Override
+    public void update(float delta) {
+        // Death sequence: count down, then trigger actual game over
+        if (dying) {
+            deathTimer -= delta;
+            if (deathTimer <= 0) {
+                dying = false;
+                gameOver(false);
+            }
+            return;
+        }
+
+        // Save player position before systems run — DogAISys uses this
+        // so the dog targets where the player WAS, not where they moved to
+        for (Entity e : getEntitiesWith(PlayerComp.class, PositionComp.class)) {
+            PositionComp pp = getComponent(e, PositionComp.class);
+            preFramePlayerX = pp.x;
+            preFramePlayerY = pp.y;
+        }
+        super.update(delta);
+    }
+
+    public int getPreFramePlayerX() { return preFramePlayerX; }
+    public int getPreFramePlayerY() { return preFramePlayerY; }
+
     public int getScore() {
         for (Entity e : getEntitiesWith(PlayerComp.class)) {
             return getComponent(e, PlayerComp.class).score;
@@ -279,7 +307,15 @@ public class World extends KfsWorld {
     public void playSound(String name) { if (soundManager != null) soundManager.play(name); }
 
     public boolean isGameOver() { return gameOver; }
+    public boolean isDying() { return dying; }
     public boolean isLevelComplete() { return levelComplete; }
+
+    public void startDying() {
+        if (dying || gameOver) return;
+        dying = true;
+        deathTimer = KfsConst.DEATH_DELAY;
+        playSound("hit");
+    }
 
     public void gameOver(boolean win) {
         if (gameOver) return;

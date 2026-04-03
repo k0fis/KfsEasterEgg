@@ -20,7 +20,7 @@
 ### Screeny (6)
 - [x] BaseScreen - fonty 10/16/32, bg_menu.png pozadí (fallback zelený Pixmap)
 - [x] MainScreen - EASTER EGG title, Play/Leaderboard/Music/Quit, async hi-score
-- [x] LevelSelectScreen - ScrollPane s 10 levely
+- [x] LevelSelectScreen - ScrollPane s 25 levely
 - [x] GameScreen - kamera follow, bg_game.png za mapou, HUD (score + eggs + jump + menu), touch controls
 - [x] GameOverScreen - win: name entry + submit + next level; lose: try again + menu
 - [x] LeaderboardScreen - TOP 10 s gold/silver/bronze
@@ -31,8 +31,15 @@
 - [x] TeaVMLauncher (responsive canvas)
 - [x] TeaVMBuilder (JAVASCRIPT, ADVANCED optimization)
 
-### Mapy (10 levelů, 30x20 tiles)
-- [x] 01-10 kompletní (Tutorial → Easter Chaos)
+### Mapy (25 levelů, 30x20 tiles)
+- [x] 01-10 kompletní (Tutorial → Easter Chaos) — open-field styl
+- [x] 11-25 Pacman-style bludiště — úzké chodby, křižovatky, slepé uličky
+  - 11-13: úvodní bludiště (0-1 pes, plotové zkratky)
+  - 14-16: traktory v chodbách, bláto
+  - 17-19: kombinace nepřátel (psi + traktory + slepice)
+  - 20-22: komplexní layouty, smečky psů, úzké průchody
+  - 23-25: maximum obtížnosti, všechny mechaniky
+- [x] `generate_maze_maps.py` — generátor maze levelů s validací (šířka, konektivita, tractor paths)
 
 ### Herní mechaniky
 - [x] Grid-based pohyb (šipky + WASD + touch + swipe)
